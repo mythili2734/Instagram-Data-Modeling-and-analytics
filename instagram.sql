@@ -1,4 +1,9 @@
-SELECT *FROM comments;
+CREATE TABLE users(
+	user_id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	email  VARCHAR(50) UNIQUE NOT NULL,
+	phone_number  VARCHAR(50) UNIQUE
+);
 
 CREATE TABLE posts(
 	post_id SERIAL PRIMARY KEY,
@@ -9,6 +14,44 @@ CREATE TABLE posts(
 	FOREIGN KEY(user_id)REFERENCES users(user_id)
 );
 
+CREATE TABLE comments(
+	comment_id  SERIAL PRIMARY KEY,
+	post_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+	comment_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY(post_id)REFERENCES posts(post_id),
+	FOREIGN KEY(user_id)REFERENCES users(user_id)
+);
+
+CREATE TABLE likes(
+	like_id SERIAL PRIMARY KEY,
+	post_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY(post_id)REFERENCES posts(post_id),
+	FOREIGN KEY(user_id)REFERENCES users(user_id)
+);
+
+CREATE TABLE followers(
+	follower_id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	follower_user_id INTEGER NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY(user_id) REFERENCES posts(post_id),
+	FOREIGN KEY(follower_user_id) REFERENCES users(user_id)
+);
+
+--Inserting into users table
+INSERT INTO users(name,email,phone_number)
+VALUES('john','john@gmail.com','9010897654'),
+       ('shiva','shiva@gmail.com','7092876542'),
+	   ('ramu','ramu@gmail.com','8773268353'),
+	   ('ram','ram@gmail.com','7663632939'),
+	   ('rani','rani@gmail.com','9896763322');
+
+SELECT *FROM users; 
+
 -- Inserting into posts table
 INSERT INTO posts(user_id,caption,image_url)
 VALUES(1,'Beautiful sunset','<http://www.example.com/sunset.jpg>'),
@@ -16,6 +59,8 @@ VALUES(1,'Beautiful sunset','<http://www.example.com/sunset.jpg>'),
 	   (3,'Delicious pizza','<http://www.example.com/pizza.jpg>'),
 	   (4,'Throwback to my vacation','<http://www.example.com/vacation.jpg>'),
 	   (5,'Amazing concert','<http://www.example.com/concert.jpg>');
+	   
+SELECT *FROM posts; 
 
 -- Inserting into comments table
 INSERT INTO comments(post_id,user_id,comment_text)
@@ -26,6 +71,8 @@ VALUES(1,2,'wow'),
 	   (3,5,'mind blowinng'),
 	   (4,1,'looking nyc'),
 	   (5,3,'soo pritty');
+	   
+SELECT *FROM comments; 	   
 	   
 -- Inserting into likes table
 INSERT INTO likes(post_id,user_id)
@@ -39,7 +86,9 @@ VALUES (1,2),
 		(4,3),
 		(5,4),
 		(5,5);		
-		
+
+SELECT *FROM likes; 
+
 -- Inserting into followers table
 INSERT INTO followers(user_id,follower_user_id)
 VALUES(1,2),
@@ -51,14 +100,14 @@ VALUES(1,2),
 	   (1,5),
 	   (5,1);
 	   
-SELECT *FROM users;	   
+SELECT *FROM followers;	   
 
 -- updating the caption of post_id 3
-SELECT *FROM posts;
-
 UPDATE  posts
 SET caption='best pizza ever'
 WHERE post_id=3;
+
+SELECT *FROM posts; 
 
 -- selecting all the posts where user_id is 1
 SELECT *FROM posts WHERE user_id=1;
