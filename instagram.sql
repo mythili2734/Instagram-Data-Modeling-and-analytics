@@ -1,5 +1,12 @@
+--In this project,we will design a data model for instagram using postgresql.
+--we will create different tables and build the data model,generate SQL create 
+--table statements,insert data shown example of updating data and add analytic
+--example using where condition,orderby,groupby,having clause etc.
+
+
+--creating tables
 CREATE TABLE users(
-	user_id SERIAL PRIMARY KEY,
+	user_id SERIAL PRIMARY KEY, // SERIAL is a datatype ,PRIMARY KEY is a constraint
 	name VARCHAR(50) NOT NULL,
 	email  VARCHAR(50) UNIQUE NOT NULL,
 	phone_number  VARCHAR(50) UNIQUE
@@ -50,7 +57,7 @@ VALUES('john','john@gmail.com','9010897654'),
 	   ('ram','ram@gmail.com','7663632939'),
 	   ('rani','rani@gmail.com','9896763322');
 
-SELECT *FROM users; 
+SELECT *FROM users;
 
 -- Inserting into posts table
 INSERT INTO posts(user_id,caption,image_url)
@@ -102,6 +109,7 @@ VALUES(1,2),
 	   
 SELECT *FROM followers;	   
 
+--update query
 -- updating the caption of post_id 3
 UPDATE  posts
 SET caption='best pizza ever'
@@ -109,13 +117,16 @@ WHERE post_id=3;
 
 SELECT *FROM posts; 
 
+--joins
 -- selecting all the posts where user_id is 1
 SELECT *FROM posts WHERE user_id=1;
 
+--ORDER BY
 --selecting all the post and ordering them by created_at in descending order
 SELECT *FROM posts
 ORDER  BY created_at DESC;
 
+--GROUP BY and HAVING 
 --counting the number of likes for each post and 
 --showing only the posts with more than 2 likes
 SELECT p.post_id,count(l.like_id)FROM posts as p
@@ -124,17 +135,27 @@ GROUP BY p.post_id
 HAVING count(l.like_id) >=2
 ;
 
+
+--Aggregation Functions 
 -- finding the total number of likes for all the posts
-SELECT sum(number_likes) FROM (
-SELECT p.post_id,count(l.like_id)number_likes FROM posts as p
-JOIN likes as l ON p.post_id = l.post_id
-GROUP BY p.post_id) as likes_by_post
-;
+SELECT SUM(number_likes) as total_likes FROM(
+SELECT p.post_id,count(l.like_id) number_likes FROM posts as p
+JOIN likes as l ON p.post_id=l.post_id
+GROUP BY p.post_id) AS likes_by_post;
 
+
+--Subquery
 --finding all the users who have commented on post_id 1
-SELECT name FROM users WHERE user_id IN(
-SELECT user_id FROM comments WHERE post_id=1);
+SELECT name
+FROM users
+WHERE user_id IN(
+        SELECT user_id
+	    FROM comments 
+	    WHERE post_id=1
+);
 
+
+--Window function  
 --ranking the posts based on the number of likes
 WITH cte as (
 SELECT p.post_id,count(l.like_id)number_likes FROM posts as p
@@ -147,6 +168,7 @@ number_likes,
 RANK()OVER (ORDER BY number_likes ASC)as rank_by_likes
 FROM cte;
 
+--CTE 
 --Finding all the posts and their comments  using a cte(common table expression)
 WITH cte as(
 SELECT p.post_id,p.caption,c.comment_text FROM posts p
@@ -154,6 +176,7 @@ LEFT JOIN comments c ON p.post_id=c.post_id
 )
 SELECT *FROM cte;
 
+--Case Statement
 --categorizing the posts based on the number of likes
 WITH cte as(
 SELECT p.post_id,count(l.like_id) number_likes FROM posts p
@@ -170,13 +193,32 @@ ELSE 'no data'
 END like_category
 FROM cte;
 
+--Date Casting and Working with Dates
+--finding all the posts created in the last month
+SELECT *
+FROM posts
+WHERE created_at >=CAST(DATE_TRUNC ('month',CURRENT_TIMESTAMP-INTERVAL '1 month') 
+						AS DATE);
 
+--Alter query
+--to modify existing table  the users table and the column email to email_to
+ALTER TABLE users RENAME column email To email_to;
+SELECT *FROM users;
 
+-- finding the total number of likes for all the posts
+SELECT max(number_likes) as total_likes FROM(
+SELECT p.post_id,count(l.like_id) number_likes FROM posts as p
+JOIN likes as l ON p.post_id=l.post_id
+GROUP BY p.post_id) AS likes_by_post;
 
+--join two tables by using cte
+WITH comment_cte as(
+	SELECT *FROM comments WHERE post_id=1
+)
+SELECT*FROM comment_cte c
+JOIN posts p on c.post_id=p.post_id;
 
-
-
-
-
+--casting datatype
+SELECT post_id,user_id::int FROM comments;
 
 	   
