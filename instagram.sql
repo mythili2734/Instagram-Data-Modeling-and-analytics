@@ -6,7 +6,7 @@
 
 --creating tables
 CREATE TABLE users(
-	user_id SERIAL PRIMARY KEY, // SERIAL is a datatype ,PRIMARY KEY is a constraint
+	user_id SERIAL PRIMARY KEY,   //SERIAL is a datatype ,PRIMARY KEY is a constraint
 	name VARCHAR(50) NOT NULL,
 	email  VARCHAR(50) UNIQUE NOT NULL,
 	phone_number  VARCHAR(50) UNIQUE
